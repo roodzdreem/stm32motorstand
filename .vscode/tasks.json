@@ -3,22 +3,22 @@
   "tasks": [
     {
       "type": "cmake",
-      "label": "Build",
+      "label": "CMake: build",
       "command": "build",
       "targets": [
-          "ALL_BUILD"
+        "ALL_BUILD"
       ],
       "problemMatcher": [],
       "group": "build"
     },
     {
       "type": "shell",
-      "label": "Flash",
-      "command": "st-flash.exe",
+      "label": "flash",
+      "command": "st-flash",
       "args": [
         "--reset",
         "write",
-        "${input:workspaceFolderForwardSlash}/build/${workspaceFolderBasename}.bin",
+        "${workspaceFolder}/build/${workspaceFolderBasename}.bin",
         "0x8000000"
       ],
       "options": {
@@ -31,31 +31,23 @@
         "isDefault": true
       },
       "detail": "Builds project and flashes firmware."
-
     },
     {
       "type": "shell",
-      "label": "Erase",
+      "label": "erase",
       "command": "st-flash",
       "args": [
         "--connect-under-reset",
         "erase"
       ],
       "detail": "mass erase of chip"
-    }
-  ],
-  
-  "inputs": [
+    },
     {
-      "id": "workspaceFolderForwardSlash",
-      "type": "command",
-      "command": "extension.commandvariable.transform",
-      "args": {
-        "text": "${workspaceFolder}",
-        "find": "\\\\",
-        "replace": "/",
-        "flags": "g"
-      }
+      "type": "cmake",
+      "label": "CMake: clean",
+      "command": "clean",
+      "problemMatcher": [],
+      "detail": "CMake template clean task"
     }
   ]
 }

@@ -22,37 +22,41 @@ stm32_fetch_cmsis(${MCU_FAMILY})
 stm32_fetch_hal(${MCU_FAMILY})
 update_launch_json(${MCU})
 
-find_package(CMSIS COMPONENTS  ${MCU} REQUIRED)
+find_package(CMSIS COMPONENTS ${MCU} REQUIRED)
 find_package(HAL COMPONENTS STM32${MCU_FAMILY} REQUIRED)
 
 
 add_executable(${PROJECT_NAME} 
-Core/Src/main.c
-Core/Src/stm32f7xx_it.c
-Core/Src/stm32f7xx_hal_msp.c
+src/main.c
 ) 
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
 ${CMAKE_CURRENT_SOURCE_DIR} 
-${CMAKE_CURRENT_SOURCE_DIR}/Core/Inc 
-${CMAKE_CURRENT_SOURCE_DIR}/Core/Src
+)
+target_compile_definitions(${PROJECT_NAME} PUBLIC USE_FULL_LL_DRIVER)
+target_compile_options(${PROJECT_NAME} PUBLIC 
+    -Os -fno-exceptions -fno-rtti
+    -mcpu=cortex-m7 -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb
+    -Wall -ffunction-sections -fdata-sections
+    --specs=nano.specs
 )
 
-target_compile_options(${PROJECT_NAME} PUBLIC -Os -fno-exceptions -fno-rtti)
+target_link_options(${PROJECT_NAME} PUBLIC
+    --specs=nosys.specs
+    -mcpu=cortex-m7
+    -mfpu=fpv5-sp-d16
+    -mfloat-abi=hard
+    -mthumb
+    -Wl,--gc-sections
+)
 
-# Link required libraries
 target_link_libraries(${PROJECT_NAME}
-    HAL::STM32::${MCU_FAMILY}::RCC
-    HAL::STM32::${MCU_FAMILY}::GPIO
-    HAL::STM32::${MCU_FAMILY}::UART
-    HAL::STM32::${MCU_FAMILY}::CORTEX
-    HAL::STM32::${MCU_FAMILY}::LL_USB
-    HAL::STM32::${MCU_FAMILY}::PCD
-    HAL::STM32::${MCU_FAMILY}::PCDEx
+    HAL::STM32::${MCU_FAMILY}::LL_GPIO
+    HAL::STM32::${MCU_FAMILY}::LL_UTILS
+    HAL::STM32::${MCU_FAMILY}::LL_RCC
     CMSIS::STM32::${MCU_MODEL}
-    STM32::Nano
-    STM32::NoSys
 )
+
 set(CMAKE_CXX_STANDARD 20)
 
 stm32_print_size_of_target(${PROJECT_NAME})
