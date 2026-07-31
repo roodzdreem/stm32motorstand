@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "Cortex Debug ST-Util",
+            "name": "Debug",
             "type": "cortex-debug",
             "request": "launch",
             "servertype": "stutil",
@@ -13,7 +13,7 @@
                 "enable breakpoint",
                 "monitor reset"
             ],
-            "runToEntryPoint": "main",
+            // "runToEntryPoint": "main",
             "showDevDebugOutput": "raw",
             "device": "STM32F767ZIT6", /* #update this field with CMake */
             "svdFile": "${workspaceRoot}/build/_deps/SVD/STM32F7x7.svd", /* #update this field with CMake */

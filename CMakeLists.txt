@@ -11,7 +11,7 @@ project(${PROJECT_NAME} C CXX ASM)
 
 # Флаги компиляции — глобально, ДО add_subdirectory, чтобы FreeRTOS их тоже получил
 add_compile_options(
-    -Os -fno-exceptions -fno-rtti
+    -Os -fno-exceptions
     -mcpu=cortex-m7 -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb
     -Wall -ffunction-sections -fdata-sections
     --specs=nano.specs
