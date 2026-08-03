@@ -20,7 +20,7 @@ extern uint32_t SystemCoreClock;
 #define configUSE_COUNTING_SEMAPHORES    1
 #define configSUPPORT_DYNAMIC_ALLOCATION 1
 #define configSUPPORT_STATIC_ALLOCATION  0
-
+#define configCOMMAND_INT_MAX_OUTPUT_SIZE     512
 #define configPRIO_BITS                              4
 #define configLIBRARY_LOWEST_INTERRUPT_PRIORITY      15
 #define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY 5

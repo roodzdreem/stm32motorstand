@@ -27,7 +27,21 @@ update_launch_json(${MCU})
 
 find_package(CMSIS COMPONENTS ${MCU} REQUIRED)
 find_package(HAL COMPONENTS STM32${MCU_FAMILY} REQUIRED)
+set(FREERTOS_CLI_COMMIT 592732b4d8e8da21f122322de4c421f89e0b4d18)
+set(FREERTOS_CLI_DIR ${CMAKE_BINARY_DIR}/_deps/freertos-plus-cli-src)
+file(MAKE_DIRECTORY ${FREERTOS_CLI_DIR})
+file(DOWNLOAD
+    https://raw.githubusercontent.com/FreeRTOS/FreeRTOS/${FREERTOS_CLI_COMMIT}/FreeRTOS-Plus/Source/FreeRTOS-Plus-CLI/FreeRTOS_CLI.c
+    ${FREERTOS_CLI_DIR}/FreeRTOS_CLI.c
+)
+file(DOWNLOAD
+    https://raw.githubusercontent.com/FreeRTOS/FreeRTOS/${FREERTOS_CLI_COMMIT}/FreeRTOS-Plus/Source/FreeRTOS-Plus-CLI/FreeRTOS_CLI.h
+    ${FREERTOS_CLI_DIR}/FreeRTOS_CLI.h
+)
 
+add_library(freertos_plus_cli STATIC ${FREERTOS_CLI_DIR}/FreeRTOS_CLI.c)
+target_include_directories(freertos_plus_cli PUBLIC ${FREERTOS_CLI_DIR})
+target_link_libraries(freertos_plus_cli PUBLIC freertos_kernel)
 add_library(freertos_config INTERFACE)
 target_include_directories(freertos_config SYSTEM INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/bsp/freertos_config
@@ -57,6 +71,8 @@ target_link_options(${PROJECT_NAME} PUBLIC
 )
 
 target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+    freertos_plus_cli
     HAL::STM32::${MCU_FAMILY}::LL_GPIO
     HAL::STM32::${MCU_FAMILY}::LL_UTILS
     HAL::STM32::${MCU_FAMILY}::LL_RCC
