@@ -51,9 +51,12 @@ set(FREERTOS_PORT "GCC_ARM_CM7" CACHE STRING "" FORCE)
 set(FREERTOS_HEAP "4" CACHE STRING "" FORCE)
 
 add_subdirectory(src/FreeRTOS-Kernel)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}
+/src/drivers/usart/src/usart.c)
 
 add_executable(${PROJECT_NAME} 
     src/main.c
+    src/drivers/usart/src/usart.c
 ) 
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
@@ -76,11 +79,13 @@ target_link_libraries(${PROJECT_NAME}
     HAL::STM32::${MCU_FAMILY}::LL_GPIO
     HAL::STM32::${MCU_FAMILY}::LL_UTILS
     HAL::STM32::${MCU_FAMILY}::LL_RCC
+    HAL::STM32::${MCU_FAMILY}::LL_USART
     CMSIS::STM32::${MCU_MODEL}
     freertos_kernel
 )
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
 stm32_print_size_of_target(${PROJECT_NAME})
 stm32_generate_elf_bin(${PROJECT_NAME})
