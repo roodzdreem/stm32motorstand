@@ -1,13 +1,14 @@
 cmake_minimum_required(VERSION 3.19)
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/stm32-cmake/cmake/stm32_gcc.cmake)
+set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake/stm32_gcc.cmake)
 include(tools/fetch_svd.cmake)
 
 set(MCU STM32F767ZIT6)
 
 get_filename_component(BASE_FOLDER ${CMAKE_CURRENT_SOURCE_DIR} NAME)
-set(PROJECT_NAME ${BASE_FOLDER})
-
-project(${PROJECT_NAME} C CXX ASM)
+set(PROJECT_NAME motorstand)
+set(DRIVERS_DIR src/drivers)
+project(${PROJECT_NAME})
+enable_language(C ASM)
 
 # Флаги компиляции — глобально, ДО add_subdirectory, чтобы FreeRTOS их тоже получил
 add_compile_options(
@@ -51,12 +52,10 @@ set(FREERTOS_PORT "GCC_ARM_CM7" CACHE STRING "" FORCE)
 set(FREERTOS_HEAP "4" CACHE STRING "" FORCE)
 
 add_subdirectory(src/FreeRTOS-Kernel)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}
-/src/drivers/usart/src/usart.c)
+add_subdirectory(${DRIVERS_DIR}/usart)
 
 add_executable(${PROJECT_NAME} 
     src/main.c
-    src/drivers/usart/src/usart.c
 ) 
 
 target_include_directories(${PROJECT_NAME} PRIVATE 

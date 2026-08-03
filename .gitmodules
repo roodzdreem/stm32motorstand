@@ -1,3 +1,6 @@
 [submodule "src/FreeRTOS-Kernel"]
 	path = src/FreeRTOS-Kernel
 	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+[submodule "cmake"]
+	path = cmake
+	url = https://github.com/ObKo/stm32-cmake.git

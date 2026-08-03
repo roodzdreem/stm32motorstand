@@ -31,13 +31,27 @@ list(APPEND ${PROJECT_NAME}_INTERFACE
 
 # Добавление дефайнов
 list(APPEND ${PROJECT_NAME}_DEFINES
+	USE_FULL_LL_DRIVER
 )
 
 # Перечисление зависимостей
 list(APPEND ${PROJECT_NAME}_DEPENDENCIES
 	freertos_kernel
 	freertos_config
+	CMSIS::STM32::${MCU_MODEL}
+	HAL::STM32::${MCU_FAMILY}::LL_GPIO
+	HAL::STM32::${MCU_FAMILY}::LL_USART
 )
 
 
 
+add_library(${PROJECT_NAME} STATIC ${${PROJECT_NAME}_SOURCES})
+
+target_include_directories(${PROJECT_NAME}
+    PUBLIC  ${${PROJECT_NAME}_INTERFACE}
+    PRIVATE ${${PROJECT_NAME}_INCLUDES}
+)
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_DEFINES})
+
+target_link_libraries(${PROJECT_NAME} PUBLIC ${${PROJECT_NAME}_DEPENDENCIES})
