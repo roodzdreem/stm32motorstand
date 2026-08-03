@@ -7,6 +7,7 @@ set(MCU STM32F767ZIT6)
 get_filename_component(BASE_FOLDER ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 set(PROJECT_NAME motorstand)
 set(DRIVERS_DIR src/drivers)
+set(MODELS_DIR src/models)
 project(${PROJECT_NAME})
 enable_language(C ASM)
 
@@ -53,9 +54,12 @@ set(FREERTOS_HEAP "4" CACHE STRING "" FORCE)
 
 add_subdirectory(src/FreeRTOS-Kernel)
 add_subdirectory(${DRIVERS_DIR}/usart)
+add_subdirectory(${MODELS_DIR}/cli)
 
 add_executable(${PROJECT_NAME} 
     src/main.c
+    src/bsp/syscalls.c
+    src/bsp/sysmem.c
 ) 
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
@@ -75,6 +79,8 @@ target_link_options(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
     freertos_plus_cli
+    usart
+    cli
     HAL::STM32::${MCU_FAMILY}::LL_GPIO
     HAL::STM32::${MCU_FAMILY}::LL_UTILS
     HAL::STM32::${MCU_FAMILY}::LL_RCC

@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include "FreeRTOS.h"
+#include "cli.h"
 #include "stdio.h"
 #include "stm32f7xx.h"
 #include "stm32f7xx_ll_bus.h"
@@ -37,6 +38,8 @@ void SysTick_Handler(void)
 
 void hb_task(void* pvParameters)
 {
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
+
     LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
     GPIO_InitStruct.Pin                 = LL_GPIO_PIN_0;
     GPIO_InitStruct.Mode                = LL_GPIO_MODE_OUTPUT;
@@ -57,14 +60,13 @@ void hb_task(void* pvParameters)
 
 int main(void)
 {
-    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
-
-    BaseType_t res = xTaskCreate(hb_task, "hb", 128, 0, 1, NULL);
-    if (res == pdPASS)
-    {
-        vTaskStartScheduler();
-    }
+    USART3_Init();
     print_info();
+    CLI_motorstand_init();
+    xTaskCreate(hb_task, "hb", 128, 0, 0, NULL);
+
+    vTaskStartScheduler();
+
     while (1)
     {
     }
