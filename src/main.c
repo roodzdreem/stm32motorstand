@@ -62,6 +62,7 @@ int main(void)
 {
     USART3_Init();
     print_info();
+    vCliTaskStart();
     CLI_motorstand_init();
     xTaskCreate(hb_task, "hb", 128, 0, 0, NULL);
 
