@@ -2,6 +2,7 @@
 
 #include "FreeRTOS.h"
 #include "cli.h"
+#include "motor.h"
 #include "stdio.h"
 #include "stm32f7xx.h"
 #include "stm32f7xx_ll_bus.h"
@@ -64,6 +65,7 @@ int main(void)
     print_info();
     vCliTaskStart();
     CLI_motorstand_init();
+    MotorInit();
     xTaskCreate(hb_task, "hb", 128, 0, 0, NULL);
 
     vTaskStartScheduler();

@@ -55,6 +55,7 @@ set(FREERTOS_HEAP "4" CACHE STRING "" FORCE)
 add_subdirectory(src/FreeRTOS-Kernel)
 add_subdirectory(${DRIVERS_DIR}/usart)
 add_subdirectory(${MODELS_DIR}/cli)
+add_subdirectory(${MODELS_DIR}/motor)
 
 add_executable(${PROJECT_NAME} 
     src/main.c
@@ -81,6 +82,7 @@ target_link_libraries(${PROJECT_NAME}
     freertos_plus_cli
     usart
     cli
+    motor
     HAL::STM32::${MCU_FAMILY}::LL_GPIO
     HAL::STM32::${MCU_FAMILY}::LL_UTILS
     HAL::STM32::${MCU_FAMILY}::LL_RCC
