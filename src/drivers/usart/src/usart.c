@@ -1,11 +1,14 @@
 #include "usart.h"
 
+#include "semphr.h"
 #include "stm32f7xx.h"
 #include "stm32f7xx_ll_bus.h"
 #include "stm32f7xx_ll_gpio.h"
 #include "stm32f7xx_ll_usart.h"
 
-static QueueHandle_t xRxQueue;
+static QueueHandle_t     xRxQueue;
+static SemaphoreHandle_t xTxMutex;
+
 
 void USART3_Init(void)
 {
@@ -34,6 +37,7 @@ void USART3_Init(void)
     LL_USART_Enable(USART3);
 
     xRxQueue = xQueueCreate(64, sizeof(uint8_t));
+    xTxMutex = xSemaphoreCreateMutex();
 
     LL_USART_EnableIT_RXNE(USART3);
     NVIC_SetPriority(USART3_IRQn, 5);
@@ -47,6 +51,13 @@ QueueHandle_t USART3_GetRxQueue(void)
 
 void USART3_Write(const char* pcString, size_t xLen)
 {
+    BaseType_t xLock =
+        (xTxMutex != NULL) && (xTaskGetSchedulerState() == taskSCHEDULER_RUNNING);
+
+    if (xLock)
+    {
+        xSemaphoreTake(xTxMutex, portMAX_DELAY);
+    }
     for (size_t i = 0; i < xLen; i++)
     {
         while (!LL_USART_IsActiveFlag_TXE(USART3))
@@ -56,6 +67,10 @@ void USART3_Write(const char* pcString, size_t xLen)
     }
     while (!LL_USART_IsActiveFlag_TC(USART3))
     {
+    }
+    if (xLock)
+    {
+        xSemaphoreGive(xTxMutex);
     }
 }
 
