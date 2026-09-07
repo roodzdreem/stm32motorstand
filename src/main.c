@@ -2,6 +2,7 @@
 
 #include "FreeRTOS.h"
 #include "cli.h"
+#include "cli_motor.h"
 #include "motor.h"
 #include "stdio.h"
 #include "stm32f7xx.h"

@@ -16,6 +16,7 @@ set(${PROJECT_NAME}_DEPENDENCIES "")
 # Добавление исходников
 list(APPEND ${PROJECT_NAME}_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/${UNIT}.c
+	${CMAKE_CURRENT_SOURCE_DIR}/src/cli_${UNIT}.c
 )
 
 # Добавление заголовков
@@ -37,6 +38,7 @@ list(APPEND ${PROJECT_NAME}_DEFINES
 # Перечисление зависимостей
 list(APPEND ${PROJECT_NAME}_DEPENDENCIES
     freertos_plus_cli
+	cli
     CMSIS::STM32::${MCU_MODEL}
 	HAL::STM32::${MCU_FAMILY}::LL_GPIO
 )
