@@ -5,6 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#define BACKSPACE 0x08
+#define DEL       0x07F
+
+
 void vCliTask(void* pvParameters);
 
 
@@ -43,12 +47,16 @@ void vCliTask(void* pvParameters)
                         USART3_Write(cOutputBuffer, strlen(cOutputBuffer));
                     } while (xMore != pdFALSE);
                 }
-                // else
-                // {
-                //     snprintf(cOutputBuffer, sizeof(cOutputBuffer), "Ошибка при выполнении команды\n\r");
-                //     USART3_Write(cOutputBuffer, strlen(cOutputBuffer));
-                // }
+
+            } else if (cRxByte == BACKSPACE || cRxByte == DEL)
+            {
+                if (xIndex > 0)
+                {
+                    USART3_Write("\b \b", 3);
+                    xIndex--;
+                }
             } else
+
             {
                 USART3_Write((char*)&cRxByte, sizeof(uint8_t));
                 output_buf[xIndex++] = cRxByte;
@@ -59,7 +67,7 @@ void vCliTask(void* pvParameters)
     }
 }
 
-BaseType_t param_is(const char* p, BaseType_t len, const char* kw)
+BaseType_t is_param(const char* p, BaseType_t len, const char* kw)
 {
     return p != NULL && (size_t)len == strlen(kw) && strncmp(p, kw, (size_t)len) == 0;
 }

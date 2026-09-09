@@ -13,8 +13,8 @@
 
 static inline void print_info()
 {
-    printf("ООО \"ЭМ Рус\", Плата:\r\n");
-    printf("[Отладочная сборка]\r\n");
+    printf("Стенд диагностики шагового двигателя\r\n");
+    printf("[PET_PROJECT]\r\n");
 }
 
 extern void xPortSysTickHandler(void);
@@ -66,7 +66,7 @@ int main(void)
     print_info();
     vCliTaskStart();
     CLI_motorstand_init();
-    MotorInit();
+    motor_init();
     xTaskCreate(hb_task, "hb", 128, 0, 0, NULL);
 
     vTaskStartScheduler();

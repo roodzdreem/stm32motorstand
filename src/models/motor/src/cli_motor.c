@@ -1,6 +1,7 @@
 #include "cli_motor.h"
 
 #include "cli.h"
+#include "string.h"
 
 static BaseType_t CLI_motorstand(char*       pcWriteBuffer,
                                  size_t      xWriteBufferLen,
@@ -29,7 +30,7 @@ static BaseType_t CLI_motorstand(char*       pcWriteBuffer,
              (int)xParamLen1,
              pcParam);
 
-    if (param_is(pcParam, xParamLen1, "set_pin"))
+    if (is_param(pcParam, xParamLen1, "set_pin"))
     {
         const char* pin   = FreeRTOS_CLIGetParameter(pcCommandString, 2, &xParamLen2);
         const char* state = FreeRTOS_CLIGetParameter(pcCommandString, 3, &xParamLen3);
@@ -42,7 +43,6 @@ static BaseType_t CLI_motorstand(char*       pcWriteBuffer,
                  (int)xParamLen3,
                  state);
 
-        // atoi() тоже небезопасен на не-null-terminated строке — нужна копия
         char pin_buf[8]   = {0};
         char state_buf[8] = {0};
         memcpy(pin_buf, pin, xParamLen2 < 7 ? xParamLen2 : 7);
@@ -51,7 +51,32 @@ static BaseType_t CLI_motorstand(char*       pcWriteBuffer,
         int8_t pin_int   = (int8_t)atoi(pin_buf);
         int8_t state_int = (int8_t)atoi(state_buf);
 
-        SetPin(pin_int, state_int);
+        cli_set_pin(pin_int, state_int);
     }
     return pdFALSE;
+}
+
+void cli_set_pin(int8_t id, int8_t state)
+{
+    switch (id)
+    {
+    case 1:
+        GPIOF->BSRR = (state == 1) ? IN1_PIN : (uint32_t)IN1_PIN << 16;
+        break;
+    case 2:
+        GPIOF->BSRR = (state == 1) ? LL_GPIO_PIN_14 : (uint32_t)LL_GPIO_PIN_14 << 16;
+        break;
+    case 3:
+        GPIOF->BSRR = (state == 1) ? LL_GPIO_PIN_13 : (uint32_t)LL_GPIO_PIN_13 << 16;
+        break;
+    case 4:
+        GPIOF->BSRR = (state == 1) ? LL_GPIO_PIN_12 : (uint32_t)LL_GPIO_PIN_12 << 16;
+        break;
+    case 5:
+        GPIOF->BSRR = (state == 1) ? MOTOR_PIN_MASK : (uint32_t)MOTOR_PIN_MASK << 16;
+        break;
+
+    default:
+        break;
+    }
 }
