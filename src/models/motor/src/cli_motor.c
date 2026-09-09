@@ -24,17 +24,16 @@ static BaseType_t CLI_motorstand(char*       pcWriteBuffer,
     BaseType_t  xParamLen1, xParamLen2, xParamLen3;
     const char* pcParam = FreeRTOS_CLIGetParameter(pcCommandString, 1, &xParamLen1);
 
-    snprintf(pcWriteBuffer,
-             xWriteBufferLen,
-             "motor: got param %.*s ",
-             (int)xParamLen1,
-             pcParam);
-
     if (is_param(pcParam, xParamLen1, "set_pin"))
     {
         const char* pin   = FreeRTOS_CLIGetParameter(pcCommandString, 2, &xParamLen2);
         const char* state = FreeRTOS_CLIGetParameter(pcCommandString, 3, &xParamLen3);
-
+        if (pin == NULL || state == NULL)
+        {
+            printf("Неправильные параметры команды\r\n"
+                   "motor set_pin <pin (0-4)> <state (0/1)>\r\n");
+            return pdFALSE;
+        }
         snprintf(pcWriteBuffer,
                  xWriteBufferLen,
                  "OK: pin %.*s, state %.*s\r\n",
@@ -55,7 +54,25 @@ static BaseType_t CLI_motorstand(char*       pcWriteBuffer,
     }
     return pdFALSE;
 }
+/* FIXME: Исправить эту ошибку
+[PET_PROJECT]
 
+motor set_pin
+Неправильные параметры команды
+motor set_pin <pin (0-4)> <state (0/1)>
+
+motor set_pin
+Неправильные параметры команды
+motor set_pin <pin (0-4)> <state (0/1)>
+
+motor set_pin 1 1
+OK: pin 1, state 1
+motor set_pin
+Неправильные параметры команды
+motor set_pin <pin (0-4)> <state (0/1)>
+OK: pin 1, state 1
+
+*/
 void cli_set_pin(int8_t id, int8_t state)
 {
     switch (id)

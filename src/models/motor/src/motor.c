@@ -23,13 +23,13 @@ void motor_init(void)
     LL_GPIO_Init(MOTOR_GPIO, &GPIO_InitStruct);
     LL_GPIO_ResetOutputPin(MOTOR_GPIO, MOTOR_PIN_MASK);
 
-    if (pdPASS != xTaskCreate(motor_task, "motor", 512, NULL, 1, NULL))
-    {
-        while (1)
-        {
-            vTaskDelay(1);
-        }
-    }
+    // if (pdPASS != xTaskCreate(motor_task, "motor", 512, NULL, 1, NULL))
+    // {
+    //     while (1)
+    //     {
+    //         vTaskDelay(1);
+    //     }
+    // }
 }
 
 void motor_task(void* pvParameters)
