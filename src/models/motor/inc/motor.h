@@ -43,6 +43,7 @@ typedef struct
     motor_direction_e direction;
     uint32_t          step_delay_ms;
     motor_direction_e motor_mode;
+    uint8_t           is_stepping;
 } motor_instance_t;
 
 
@@ -67,5 +68,8 @@ static const uint32_t full_step[4] = {
 void motor_init(void);
 void cli_set_pin(int8_t id, int8_t state);
 void do_step(motor_instance_t* motor);
+void start_stepping(void);
+void stop_stepping(void);
+
 
 #endif /* MOTOR_H */

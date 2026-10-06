@@ -10,11 +10,14 @@ static motor_instance_t motor_instance = {
     .direction     = MOTOR_DIR_CW,
     .step_delay_ms = 3,
     .motor_mode    = MODE_HALF,
+    .is_stepping   = 0,
 };
 
 static void motor_task(void* pvParameters);
 void        do_step(motor_instance_t* motor);
 static void init_motor_gpio(void);
+void        start_stepping(void);
+void        stop_stepping(void);
 
 void motor_init(void)
 {
@@ -30,8 +33,12 @@ static void motor_task(void* pvParameters)
 {
     for (;;)
     {
-        do_step(&motor_instance);    // & 7 == % 8 для степени двойки
-        vTaskDelay(pdMS_TO_TICKS(motor_instance.step_delay_ms));
+        if (motor_instance.is_stepping)
+        {
+            do_step(&motor_instance);    // & 7 == % 8 для степени двойки
+            vTaskDelay(pdMS_TO_TICKS(motor_instance.step_delay_ms));
+        } else
+            vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 
@@ -56,4 +63,14 @@ static void init_motor_gpio(void)
         printf("Motor GPIO init error\r\n");
     }
     LL_GPIO_ResetOutputPin(MOTOR_GPIO, MOTOR_PIN_MASK);
+}
+
+void start_stepping(void)
+{
+    motor_instance.is_stepping = 1;
+}
+
+void stop_stepping(void)
+{
+    motor_instance.is_stepping = 0;
 }
