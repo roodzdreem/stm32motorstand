@@ -3,6 +3,8 @@
 #include "cli.h"
 #include "string.h"
 
+#include <stdlib.h>
+
 static BaseType_t CLI_motorstand(char*       pcWriteBuffer,
                                  size_t      xWriteBufferLen,
                                  const char* pcCommandString);

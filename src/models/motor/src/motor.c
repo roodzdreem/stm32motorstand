@@ -2,15 +2,46 @@
 
 #include <stdio.h>
 
-// полушаговая последовательность, бит0 = IN1 (PF12) ... бит3 = IN4 (PF15)
-static const uint8_t half_step[8] =
-    {0b0001, 0b0011, 0b0010, 0b0110, 0b0100, 0b1100, 0b1000, 0b1001};
-static const uint8_t full_step[4] = {0b0001, 0b0010, 0b0100, 0b1000};
+// static uint8_t step_idx = 0;
+#define ARRAY_LEN(a) (sizeof(a) / sizeof((a)[0]))
 
-void        motor_task(void* pvParameters);
-static void motor_write(uint8_t phase);
+static motor_instance_t motor_instance = {
+    .step_idx      = 0,
+    .direction     = MOTOR_DIR_CW,
+    .step_delay_ms = 3,
+    .motor_mode    = MODE_HALF,
+};
+
+static void motor_task(void* pvParameters);
+void        do_step(motor_instance_t* motor);
+static void init_motor_gpio(void);
 
 void motor_init(void)
+{
+    init_motor_gpio();
+
+    if (pdPASS != xTaskCreate(motor_task, "motor", 512, NULL, 1, NULL))
+    {
+        configASSERT(0);
+    }
+}
+
+static void motor_task(void* pvParameters)
+{
+    for (;;)
+    {
+        do_step(&motor_instance);    // & 7 == % 8 для степени двойки
+        vTaskDelay(pdMS_TO_TICKS(motor_instance.step_delay_ms));
+    }
+}
+
+void do_step(motor_instance_t* motor)
+{
+    motor->step_idx  = (motor->step_idx + motor->direction) & (ARRAY_LEN(half_step) - 1u);
+    MOTOR_GPIO->BSRR = half_step[motor_instance.step_idx];
+}
+
+static void init_motor_gpio(void)
 {
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOF);
 
@@ -20,41 +51,9 @@ void motor_init(void)
     GPIO_InitStruct.Speed               = LL_GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.OutputType          = LL_GPIO_OUTPUT_PUSHPULL;
     GPIO_InitStruct.Pull                = LL_GPIO_PULL_NO;
-    LL_GPIO_Init(MOTOR_GPIO, &GPIO_InitStruct);
-    LL_GPIO_ResetOutputPin(MOTOR_GPIO, MOTOR_PIN_MASK);
-
-    // if (pdPASS != xTaskCreate(motor_task, "motor", 512, NULL, 1, NULL))
-    // {
-    //     while (1)
-    //     {
-    //         vTaskDelay(1);
-    //     }
-    // }
-}
-
-void motor_task(void* pvParameters)
-{
-    uint8_t idx = 0;
-    for (;;)
+    if (LL_GPIO_Init(MOTOR_GPIO, &GPIO_InitStruct) != SUCCESS)
     {
-        vTaskDelay(pdMS_TO_TICKS(3));
-        motor_write(half_step[(idx++) % 8]);
+        printf("Motor GPIO init error\r\n");
     }
-}
-
-static void motor_write(uint8_t phase)
-{
-    uint32_t set = 0;
-    if (phase & 0x1u)
-        set |= IN1_PIN;
-    if (phase & 0x2u)
-        set |= IN2_PIN;
-    if (phase & 0x4u)
-        set |= IN3_PIN;
-    if (phase & 0x8u)
-        set |= IN4_PIN;
-
-    uint32_t clr = MOTOR_PIN_MASK & ~set;    // всё, что не set — выключить
-    MOTOR_GPIO->BSRR =
-        set | (clr << 16);    // set в младших 16, reset в старших — одной записью
+    LL_GPIO_ResetOutputPin(MOTOR_GPIO, MOTOR_PIN_MASK);
 }
